@@ -1,7 +1,7 @@
 package com.kooym.androidskeleton.network.retrofit
 
 import com.androidnetworking.interceptors.HttpLoggingInterceptor
-import com.kooym.androidskeleton.BaseApplication
+import com.kooym.androidskeleton.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -13,7 +13,7 @@ class RetrofitClient {
         private var retrofitClient: RetrofitService? = null
         fun getClient(): RetrofitService?{
             val httpLoggingInterceptor = HttpLoggingInterceptor()
-            if(BaseApplication.DEBUG)
+            if(BuildConfig.DEBUG)
                 httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             else
                 httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
