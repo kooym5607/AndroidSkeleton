@@ -5,22 +5,44 @@ plugins {
 }
 
 android {
-    compileSdk 30
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.kooym.androidskeleton"
-        minSdk 24
-        targetSdk 30
+        minSdk 28
+        targetSdk 29
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def aabName = "appName-v${versionName}(${versionCode})"
+        setProperty("archivesBaseName", aabName)
     }
 
     buildTypes {
         release {
+            debuggable false
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            signingConfig signingConfigs.release            // release mode debug
+            manifestPlaceholders = [
+                    appName : "@string/app_name",
+                    provider : "release"
+            ]
+            buildConfigField "boolean","IS_DEBUG","false"
+        }
+        debug{
+            minifyEnabled false
+            applicationIdSuffix '.dev'
+            buildConfigField "boolean","IS_DEBUG","true"
+//            signingConfig signingConfigs.release
+            manifestPlaceholders = [
+                    appName : "appDebug",
+                    provider : "dev"
+            ]
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
+            crunchPngs false
         }
     }
     compileOptions {
@@ -34,6 +56,11 @@ android {
         dataBinding true
     }
 }
+
+project.ext {
+    excludeAppGlideModule = true
+}
+
 dependencies {
     // default
     implementation 'androidx.core:core-ktx:1.6.0'
@@ -62,4 +89,17 @@ dependencies {
 
     // network
     implementation "com.amitshekhar.android:rx2-android-networking:$rx2FastAndroidNetworking"
+}
+
+task renameBundle(type: Copy) {
+    from "$buildDir/outputs/bundle/release"
+    into "$buildDir/outputs/bundle/release"
+
+    rename 'app.aab', "appName-v${android.defaultConfig.versionName}({${android.defaultConfig.versionCode}).aab"
+}
+
+task deleteOriginalBundleFile(type: Delete) {
+    delete fileTree("$buildDir/outputs/bundle/release").matching {
+        include "app.aab"
+    }
 }
